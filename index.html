@@ -225,6 +225,52 @@
         <p class="empty-state" id="proveedoresEmpty" hidden>No hay proveedores registrados.</p>
       </div>
     </section>
+    <!-- ===================== VISTA: PROVEEDORES ===================== -->
+    <section id="view-proveedores" class="view" hidden>
+      <div class="panel">
+        <div class="panel__head">
+          <h1>Proveedores</h1>
+          <button class="btn btn--primary" id="btnNewProveedor" type="button">+ Nuevo proveedor</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Empresa / Nombre</th>
+                <th scope="col">Contacto</th>
+                <th scope="col"><span class="sr-only">Acciones</span></th>
+              </tr>
+            </thead>
+            <tbody id="proveedoresBody"></tbody>
+          </table>
+        </div>
+        <p class="empty-state" id="proveedoresEmpty" hidden>No hay proveedores registrados.</p>
+      </div>
+    </section>
+
+    <!-- ===================== VISTA: COMPRAS ===================== -->
+    <section id="view-compras" class="view" hidden>
+      <div class="panel">
+        <div class="panel__head">
+          <h1>Órdenes de compras</h1>
+          <button class="btn btn--primary" id="btnNewCompra" type="button">+ Nueva compra</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">ID / Referencia</th>
+                <th scope="col">Proveedor</th>
+                <th scope="col">Total</th>
+                <th scope="col">Fecha</th>
+              </tr>
+            </thead>
+            <tbody id="comprasBody"></tbody>
+          </table>
+        </div>
+        <p class="empty-state" id="comprasEmpty" hidden>No hay compras registradas.</p>
+      </div>
+    </section>
     <!-- ===================== VISTA: HISTORIAL ===================== -->
     <section id="view-historial" class="view" hidden>
       <div class="panel">
@@ -380,26 +426,3 @@
 </body>
 </html>
 
-<!-- ===================== VISTA: COMPRAS ===================== -->
-    <section id="view-compras" class="view" hidden>
-      <div class="panel">
-        <div class="panel__head">
-          <h1>Órdenes de compras</h1>
-          <button class="btn btn--primary" id="btnNewCompra" type="button">+ Nueva compra</button>
-        </div>
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th scope="col">ID / Referencia</th>
-                <th scope="col">Proveedor</th>
-                <th scope="col">Total</th>
-                <th scope="col">Fecha</th>
-              </tr>
-            </thead>
-            <tbody id="comprasBody"></tbody>
-          </table>
-        </div>
-        <p class="empty-state" id="comprasEmpty" hidden>No hay compras registradas.</p>
-      </div>
-    </section>
