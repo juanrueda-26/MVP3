@@ -1,6 +1,7 @@
 // sale.js — flujo completo de "Nueva venta": buscar, agregar, cobrar, confirmar
 
 import { getProducts, updateProducto, getSales, createSale, updateSale } from "./storage.js";
+import { apiPost } from "./api.js";
 import { formatCOP, isNonNegativeNumber, showToast } from "./utils.js";
 import { showView } from "./router.js";
 import { renderTicket } from "./invoice.js";
@@ -233,7 +234,7 @@ function updateTotals() {
   }
 }
 
-// ---------- Confirmar venta ----------
+// ---------- Confirmar venta conectada a la API de Django ----------
 
 async function confirmSale(e) {
   if (e) e.preventDefault();
@@ -259,12 +260,14 @@ async function confirmSale(e) {
     cambio = valorRecibido - total;
   }
 
+  // Obtenemos los productos actuales de la API de forma segura
   let productsList = getProducts();
   if (productsList instanceof Promise) {
     productsList = await productsList;
   }
   const products = Array.isArray(productsList) ? productsList : [];
 
+  // Validar stock disponible antes de proceder
   for (const item of cart) {
     const product = products.find((p) => p.id === item.productId);
     if (product && product.seguimientoInventario) {
@@ -274,20 +277,60 @@ async function confirmSale(e) {
     }
   }
 
-  cart.forEach((item) => {
+  // 1. Descontar stock y actualizar cada producto en el servidor de Django
+  for (const item of cart) {
     const product = products.find((p) => p.id === item.productId);
     if (product && product.seguimientoInventario) {
       product.stock = (product.stock ?? 0) - item.cantidad;
+      
+      try {
+        await fetch(`http://127.0.0.1:8000/api/productos/${product.id}/`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nombre: product.nombre,
+            precio: product.precioVenta,
+            costo: product.costo || 0,
+            stock: product.stock,
+            categoria: Number(product.categoria) || 1,
+            proveedor: 1
+          })
+        });
+      } catch (err) {
+        console.error("Error actualizando stock en el servidor:", err);
+      }
     }
-  });
-
-  if (typeof saveProducts === "function") {
-    saveProducts(products);
   }
 
+  // 2. Preparamos el payload que espera el VentaSerializer de tu backend
+  const ventaPayload = {
+    total: total,
+    metodo_pago: metodoPago,
+    valor_recibido: valorRecibido,
+    cambio: cambio,
+    estado: "cerrada",
+    cliente: 1, // ID por defecto o seleccionado
+    usuario: 1, // ID del usuario activo
+    items: cart.map((i) => ({
+      producto: i.productId,
+      cantidad: i.cantidad,
+      precio_unitario: i.precioUnitario
+    }))
+  };
+
+  try {
+    // Registramos la venta en la base de datos de Django
+    await apiPost("ventas", ventaPayload);
+  } catch (err) {
+    console.error("Error al registrar la venta en Django:", err);
+    return showSaleError("No se pudo registrar la venta en el servidor.");
+  }
+
+  showToast(`Venta confirmada exitosamente.`);
+
   const sale = {
-    id: typeof makeId === "function" ? makeId() : "venta-" + Date.now(),
-    numero: typeof nextSaleNumber === "function" ? nextSaleNumber() : 1,
+    id: "venta-" + Date.now(),
+    numero: Math.floor(1000 + Math.random() * 9000),
     fecha: new Date().toISOString(),
     items: cart.map((i) => ({
       productId: i.productId,
@@ -303,25 +346,14 @@ async function confirmSale(e) {
     estado: "cerrada",
   };
 
-  if (typeof getSales === "function" && typeof saveSales === "function") {
-    const sales = getSales();
-    sales.push(sale);
-    saveSales(sales);
-  }
-
-  showToast(`Venta #${sale.numero} confirmada.`);
-
+  // Reset del formulario de venta
   cart = [];
   cashReceived.value = "";
   renderCart();
 
+  // Ir a la vista de factura y notificar completado
   renderTicket(sale, { showConfirmBanner: true });
   showView("factura");
 
   window.dispatchEvent(new CustomEvent("sale:completed"));
-}
-
-function showSaleError(message) {
-  saleError.textContent = message;
-  saleError.hidden = false;
 }
