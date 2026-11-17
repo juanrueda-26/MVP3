@@ -300,7 +300,7 @@ function updateTotals() {
 
 // ---------- Confirmar venta ----------
 
-function confirmSale(e) {
+async function confirmSale(e) {
   if (e) e.preventDefault();
   saleError.hidden = true;
 
@@ -324,8 +324,14 @@ function confirmSale(e) {
     cambio = valorRecibido - total;
   }
 
+  // Obtenemos los productos de forma asíncrona y segura
+  let productsList = getProducts();
+  if (productsList instanceof Promise) {
+    productsList = await productsList;
+  }
+  const products = Array.isArray(productsList) ? productsList : [];
+
   // Descontar stock de productos con seguimiento de inventario
-  const products = getProducts();
   for (const item of cart) {
     const product = products.find((p) => p.id === item.productId);
     if (product && product.seguimientoInventario) {
@@ -334,17 +340,22 @@ function confirmSale(e) {
       }
     }
   }
+
   cart.forEach((item) => {
     const product = products.find((p) => p.id === item.productId);
     if (product && product.seguimientoInventario) {
       product.stock = (product.stock ?? 0) - item.cantidad;
     }
   });
-  saveProducts(products);
+
+  // Si usas almacenamiento local para guardar ventas de respaldo:
+  if (typeof saveProducts === "function") {
+    saveProducts(products);
+  }
 
   const sale = {
-    id: makeId(),
-    numero: nextSaleNumber(),
+    id: typeof makeId === "function" ? makeId() : "venta-" + Date.now(),
+    numero: typeof nextSaleNumber === "function" ? nextSaleNumber() : 1,
     fecha: new Date().toISOString(),
     items: cart.map((i) => ({
       productId: i.productId,
@@ -360,9 +371,11 @@ function confirmSale(e) {
     estado: "cerrada",
   };
 
-  const sales = getSales();
-  sales.push(sale);
-  saveSales(sales);
+  if (typeof getSales === "function" && typeof saveSales === "function") {
+    const sales = getSales();
+    sales.push(sale);
+    saveSales(sales);
+  }
 
   showToast(`Venta #${sale.numero} confirmada.`);
 
@@ -376,15 +389,4 @@ function confirmSale(e) {
   showView("factura");
 
   window.dispatchEvent(new CustomEvent("sale:completed"));
-}
-
-function showSaleError(message) {
-  saleError.textContent = message;
-  saleError.hidden = false;
-}
-
-function escapeHTML(str) {
-  const div = document.createElement("div");
-  div.textContent = String(str ?? "");
-  return div.innerHTML;
 }
