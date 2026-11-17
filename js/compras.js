@@ -1,5 +1,6 @@
 import { getCompras, createCompra, getProducts, updateProducto } from './storage.js';
 import { showToast } from './utils.js';
+import { apiGet, apiPost } from "./api.js";
 
 export async function registrarCompra(proveedorId, itemsCompra) {
   if (!proveedorId) {
@@ -63,3 +64,4 @@ export async function renderComprasTable() {
   tbody.innerHTML = "";
   if (emptyState) emptyState.hidden = false;
 }
+
