@@ -43,3 +43,23 @@ export async function registrarCompra(proveedorId, itemsCompra) {
     showToast("No se pudo registrar la compra en el servidor.", "error");
   }
 }
+
+export function initCompras() {
+  const btnNew = document.getElementById("btnNewCompra");
+  if (btnNew) {
+    btnNew.addEventListener("click", () => {
+      // Lógica para registrar nueva compra o abrir modal
+      console.log("Nueva compra clickeada");
+    });
+  }
+}
+
+export async function renderComprasTable() {
+  const tbody = document.getElementById("comprasBody");
+  const emptyState = document.getElementById("comprasEmpty");
+  if (!tbody) return;
+
+  // Puedes conectar aquí tu llamada a la API de compras si la tienes lista
+  tbody.innerHTML = "";
+  if (emptyState) emptyState.hidden = false;
+}
