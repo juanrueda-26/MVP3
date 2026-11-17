@@ -4,6 +4,9 @@ import { initSale } from "./venta.js";
 import { initHistory, renderHistory } from "./historial.js";
 import { initInvoice } from "./invoice.js";
 import { initCategorias, renderCategoriasTable } from './categorias.js';
+import { initClientes, renderClientesTable } from "./clientes.js";
+import { initProveedores, renderProveedoresTable } from "./proveedores.js";
+import { initCompras, renderComprasTable } from "./compras.js";
 
 initInvoice();
 initProducts(() => {});
@@ -11,13 +14,18 @@ initSale();
 initHistory();
 initCategorias(); // Inicializa los eventos del modal y botones una sola vez
 initRouter();
+initClientes();
+initProveedores();
+initCompras();
 
 onViewChange((view) => {
   if (view === "historial") renderHistory();
   if (view === "productos") renderProductsTable();
-  if (view === "categorias") renderCategoriasTable(); // <--- Aquí va perfectamente integrado
+  if (view === "categorias") renderCategoriasTable();
+  if (view === "clientes") renderClientesTable();
+  if (view === "proveedores") renderProveedoresTable();
+  if (view === "compras") renderComprasTable();
 });
-
 window.addEventListener("sale:completed", () => {
   renderHistory();
   renderProductsTable();
