@@ -87,3 +87,64 @@ function aplicarRestriccionesRol() {
     if (tabCompras) tabCompras.style.display = "inline-block";
   }
 }
+
+if (loginForm) {
+  loginForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    
+    const user = document.getElementById("loginUsername").value.trim();
+    const pass = document.getElementById("loginPassword").value.trim();
+    const errorEl = document.getElementById("loginFormError");
+
+    // Validamos credenciales según los roles establecidos en la rúbrica
+    if ((user === "asus" && pass === "asus") || (user === "cajero1" && pass === "cajero1")) {
+      
+      // 1. Guardamos la sesión activa en el localStorage
+      localStorage.setItem("usuarioActual", user);
+      
+      // 2. Ocultamos el modal de login
+      const modalLogin = document.getElementById("loginModalBackdrop");
+      if (modalLogin) modalLogin.hidden = true;
+
+      // 3. Aplicamos las restricciones visuales de roles inmediatamente
+      aplicarRestriccionesRol();
+
+    } else {
+      if (errorEl) {
+        errorEl.textContent = "Usuario o contraseña incorrectos.";
+        errorEl.hidden = false;
+      }
+    }
+  });
+}
+
+// Función que aplica el control de acceso del Momento 1
+function aplicarRestriccionesRol() {
+  const usuarioActual = localStorage.getItem("usuarioActual");
+  
+  // Seleccionamos los botones de las pestañas exclusivas de administración
+  const tabsAdministrativas = document.querySelectorAll(
+    '[data-view="productos"], [data-view="categorias"], [data-view="proveedores"], [data-view="compras"]'
+  );
+
+  tabsAdministrativas.forEach(tab => {
+    if (usuarioActual === "cajero1") {
+      // Si es cajero, ocultamos las pestañas administrativas
+      tab.style.display = "none";
+    } else {
+      // Si es administrador (asus), las mostramos con normalidad
+      tab.style.display = "inline-block";
+    }
+  });
+}
+
+// Ejecutar al cargar la página por si ya había una sesión iniciada
+document.addEventListener("DOMContentLoaded", () => {
+  const usuarioActual = localStorage.getItem("usuarioActual");
+  const modalLogin = document.getElementById("loginModalBackdrop");
+  
+  if (usuarioActual) {
+    if (modalLogin) modalLogin.hidden = true;
+    aplicarRestriccionesRol();
+  }
+});
