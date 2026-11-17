@@ -1,6 +1,5 @@
 // router.js — navegación entre vistas (sin framework, sin recarga de página)
-
-const views = ["venta", "productos", "historial", "factura"];
+const views = ["venta", "productos", "historial", "factura", "categorias", "clientes", "proveedores", "compras"];
 const listeners = [];
 
 export function onViewChange(fn) {
