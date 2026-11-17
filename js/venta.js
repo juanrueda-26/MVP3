@@ -300,7 +300,7 @@ function updateTotals() {
 
 // ---------- Confirmar venta ----------
 
-function confirmSale() {
+function confirmSale(e) {
   if (e) e.preventDefault();
   saleError.hidden = true;
 
