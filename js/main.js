@@ -74,3 +74,27 @@ function aplicarRestriccionesRol() {
     if (btnNewCategoria) btnNewCategoria.style.display = 'none';
   }
 }
+
+function aplicarRestriccionesRol() {
+  const usuarioActual = localStorage.getItem("usuarioActual"); // O el objeto de sesión que utilices
+  
+  // Seleccionamos los botones de las pestañas administrativas en el DOM
+  const tabProductos = document.querySelector('[data-view="productos"]');
+  const tabCategorias = document.querySelector('[data-view="categorias"]');
+  const tabProveedores = document.querySelector('[data-view="proveedores"]');
+  const tabCompras = document.querySelector('[data-view="compras"]');
+
+  // Si el usuario es cajero, ocultamos o deshabilitamos las pestañas
+  if (usuarioActual === "cajero1") {
+    if (tabProductos) tabProductos.style.display = "none";
+    if (tabCategorias) tabCategorias.style.display = "none";
+    if (tabProveedores) tabProveedores.style.display = "none";
+    if (tabCompras) tabCompras.style.display = "none";
+  } else {
+    // Si es administrador (ej. asus), nos aseguramos de que sean visibles
+    if (tabProductos) tabProductos.style.display = "inline-block";
+    if (tabCategorias) tabCategorias.style.display = "inline-block";
+    if (tabProveedores) tabProveedores.style.display = "inline-block";
+    if (tabCompras) tabCompras.style.display = "inline-block";
+  }
+}
