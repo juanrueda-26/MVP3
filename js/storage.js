@@ -196,7 +196,16 @@ export async function deleteSale(id) {
   });
   return true;
 }
-
+export async function getVentas() {
+  try {
+    const res = await fetch("http://127.0.0.1:8000/api/ventas/");
+    if (!res.ok) throw new Error("Error al obtener ventas");
+    return await res.json();
+  } catch (e) {
+    console.error("Error obteniendo ventas en storage:", e);
+    return [];
+  }
+}
 // ---------- Contadores ----------
 export async function nextProductCode() {
   const products = await getProducts();
