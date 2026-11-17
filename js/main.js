@@ -12,7 +12,7 @@ initInvoice();
 initProducts(() => {});
 initSale();
 initHistory();
-initCategorias(); // Inicializa los eventos del modal y botones una sola vez
+initCategorias();
 initRouter();
 initClientes();
 initProveedores();
@@ -26,78 +26,17 @@ onViewChange((view) => {
   if (view === "proveedores") renderProveedoresTable();
   if (view === "compras") renderComprasTable();
 });
+
 window.addEventListener("sale:completed", () => {
   renderHistory();
   renderProductsTable();
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-  const loginModal = document.getElementById('loginModalBackdrop');
-  const loginForm = document.getElementById('loginForm');
-  const loginError = document.getElementById('loginFormError');
-
-  // Si ya hay una sesión guardada, ocultamos el modal
-  const currentUser = localStorage.getItem('pos_user');
-  if (currentUser) {
-    loginModal.hidden = true;
-  }
-
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const username = document.getElementById('loginUsername').value.trim();
-    const password = document.getElementById('loginPassword').value.trim();
-
-    loginError.hidden = true;
-
-    // Validación básica local para la demo (o puedes conectarlo a tu endpoint de token DRF)
-    if ((username === 'asus' && password === 'asus123.') || (username === 'cajero1' && password === 'password123')) {
-      localStorage.setItem('pos_user', username);
-      localStorage.setItem('pos_role', username === 'asus' ? 'admin' : 'cajero');
-      loginModal.hidden = true;
-      
-      // Si es cajero, bloqueamos visualmente los botones de modificar productos/categorías
-      aplicarRestriccionesRol();
-    } else {
-      loginError.textContent = 'Usuario o contraseña incorrectos.';
-      loginError.hidden = false;
-    }
-  });
-});
-if (loginForm) {
-  loginForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    
-    const user = document.getElementById("loginUsername").value.trim();
-    const pass = document.getElementById("loginPassword").value.trim();
-    const errorEl = document.getElementById("loginFormError");
-
-    // Validamos credenciales según los roles establecidos en la rúbrica
-    if ((user === "asus" && pass === "asus") || (user === "cajero1" && pass === "cajero1")) {
-      
-      // 1. Guardamos la sesión activa en el localStorage
-      localStorage.setItem("usuarioActual", user);
-      
-      // 2. Ocultamos el modal de login
-      const modalLogin = document.getElementById("loginModalBackdrop");
-      if (modalLogin) modalLogin.hidden = true;
-
-      // 3. Aplicamos las restricciones visuales de roles inmediatamente
-      aplicarRestriccionesRol();
-
-    } else {
-      if (errorEl) {
-        errorEl.textContent = "Usuario o contraseña incorrectos.";
-        errorEl.hidden = false;
-      }
-    }
-  });
-}
-
-// Función que aplica el control de acceso del Momento 1
+// Función centralizada para aplicar el control de acceso por roles (Momento 1)
 function aplicarRestriccionesRol() {
   const usuarioActual = localStorage.getItem("usuarioActual");
   
-  // Seleccionamos los botones de las pestañas exclusivas de administración
+  // Seleccionamos las pestañas administrativas exclusivas
   const tabsAdministrativas = document.querySelectorAll(
     '[data-view="productos"], [data-view="categorias"], [data-view="proveedores"], [data-view="compras"]'
   );
@@ -113,13 +52,43 @@ function aplicarRestriccionesRol() {
   });
 }
 
-// Ejecutar al cargar la página por si ya había una sesión iniciada
-document.addEventListener("DOMContentLoaded", () => {
-  const usuarioActual = localStorage.getItem("usuarioActual");
-  const modalLogin = document.getElementById("loginModalBackdrop");
-  
+document.addEventListener('DOMContentLoaded', () => {
+  const loginModal = document.getElementById('loginModalBackdrop');
+  const loginForm = document.getElementById('loginForm');
+  const loginError = document.getElementById('loginFormError');
+
+  // Si ya hay una sesión guardada, ocultamos el modal y aplicamos restricciones
+  const usuarioActual = localStorage.getItem('usuarioActual');
   if (usuarioActual) {
-    if (modalLogin) modalLogin.hidden = true;
+    if (loginModal) loginModal.hidden = true;
     aplicarRestriccionesRol();
   }
+
+  if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      if (loginError) loginError.hidden = true;
+
+      // Validación unificada para administrador (asus) y cajero (cajero1)
+      if ((username === 'asus' && password === 'asus') || (username === 'cajero1' && password === 'cajero1')) {
+        localStorage.setItem('usuarioActual', username);
+        
+        if (loginModal) loginModal.hidden = true;
+        
+        // Aplicamos el bloqueo visual de pestañas inmediatamente
+        aplicarRestriccionesRol();
+        
+      } else {
+        if (loginError) {
+          loginError.textContent = 'Usuario o contraseña incorrectos.';
+          loginError.hidden = false;
+        }
+      }
+    });
+  }
 });
+
+
