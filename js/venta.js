@@ -42,7 +42,7 @@ export function initSale() {
 
 // ---------- Búsqueda de productos ----------
 
-function renderSearchResults() {
+async function renderSearchResults() {
   const query = searchInput.value.trim().toLowerCase();
   if (!query) {
     resultsList.hidden = true;
@@ -50,7 +50,14 @@ function renderSearchResults() {
     return;
   }
 
-  const matches = getProducts()
+  // Obtenemos los productos asegurándonos de manejar correctamente si es una promesa o arreglo
+  let productsList = getProducts();
+  if (productsList instanceof Promise) {
+    productsList = await productsList;
+  }
+  const productsArray = Array.isArray(productsList) ? productsList : [];
+
+  const matches = productsArray
     .filter((p) => [p.nombre, p.codigoInterno].join(" ").toLowerCase().includes(query))
     .slice(0, 8);
 
