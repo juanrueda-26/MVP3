@@ -23,3 +23,46 @@ window.addEventListener("sale:completed", () => {
   renderProductsTable();
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+  const loginModal = document.getElementById('loginModalBackdrop');
+  const loginForm = document.getElementById('loginForm');
+  const loginError = document.getElementById('loginFormError');
+
+  // Si ya hay una sesión guardada, ocultamos el modal
+  const currentUser = localStorage.getItem('pos_user');
+  if (currentUser) {
+    loginModal.hidden = true;
+  }
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+
+    loginError.hidden = true;
+
+    // Validación básica local para la demo (o puedes conectarlo a tu endpoint de token DRF)
+    if ((username === 'asus' && password === 'asus123.') || (username === 'cajero1' && password === 'password123')) {
+      localStorage.setItem('pos_user', username);
+      localStorage.setItem('pos_role', username === 'asus' ? 'admin' : 'cajero');
+      loginModal.hidden = true;
+      
+      // Si es cajero, bloqueamos visualmente los botones de modificar productos/categorías
+      aplicarRestriccionesRol();
+    } else {
+      loginError.textContent = 'Usuario o contraseña incorrectos.';
+      loginError.hidden = false;
+    }
+  });
+});
+
+function aplicarRestriccionesRol() {
+  const role = localStorage.getItem('pos_role');
+  if (role === 'cajero') {
+    // Ocultamos o deshabilitamos botones de creación/edición para simular el bloqueo del Momento 1
+    const btnNewProduct = document.getElementById('btnNewProduct');
+    const btnNewCategoria = document.getElementById('btnNewCategoria');
+    if (btnNewProduct) btnNewProduct.style.display = 'none';
+    if (btnNewCategoria) btnNewCategoria.style.display = 'none';
+  }
+}

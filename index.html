@@ -350,5 +350,32 @@
   <div class="toast" id="toast" hidden></div>
 
   <script type="module" src="js/main.js"></script>
+  
+  <!-- ===================== MODAL: LOGIN ===================== -->
+  <div class="modal-backdrop" id="loginModalBackdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle" style="max-width: 400px;">
+      <div class="modal__head">
+        <h2 id="loginModalTitle">Iniciar sesión — Papel y Luna</h2>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <label class="field">
+          <span class="field__label">Usuario *</span>
+          <input type="text" id="loginUsername" required autocomplete="username">
+        </label>
+
+        <label class="field">
+          <span class="field__label">Contraseña *</span>
+          <input type="password" id="loginPassword" required autocomplete="current-password">
+        </label>
+
+        <p class="form-error" id="loginFormError" hidden></p>
+
+        <div class="modal__actions" style="margin-top: 20px;">
+          <button type="submit" class="btn btn--primary" style="width: 100%;">Ingresar al sistema</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </body>
 </html>

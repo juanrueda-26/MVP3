@@ -454,3 +454,14 @@ input:focus-visible{
 [hidden] {
   display: none !important;
 }
+
+/* Estilos para el control de acceso y login */
+#loginModalBackdrop:not([hidden]) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+}
