@@ -20,10 +20,12 @@ const cashReceived = document.getElementById("cashReceived");
 const saleError = document.getElementById("saleError");
 
 export function initSale() {
-  searchInput.addEventListener("input", renderSearchResults);
-  searchInput.addEventListener("focus", renderSearchResults);
+  if (searchInput) {
+    searchInput.addEventListener("input", renderSearchResults);
+    searchInput.addEventListener("focus", renderSearchResults);
+  }
   document.addEventListener("click", (e) => {
-    if (!resultsList.contains(e.target) && e.target !== searchInput) {
+    if (resultsList && !resultsList.contains(e.target) && e.target !== searchInput) {
       resultsList.hidden = true;
     }
   });
@@ -31,13 +33,23 @@ export function initSale() {
   document.querySelectorAll('input[name="metodoPago"]').forEach((radio) => {
     radio.addEventListener("change", syncCashFields);
   });
-  cashReceived.addEventListener("input", updateTotals);
+  if (cashReceived) cashReceived.addEventListener("input", updateTotals);
 
-  document.getElementById("btnClearSale").addEventListener("click", clearSale);
-  document.getElementById("btnConfirmSale").addEventListener("click", (e) => confirmSale(e));
+  const btnClear = document.getElementById("btnClearSale");
+  if (btnClear) btnClear.addEventListener("click", clearSale);
+
+  const btnConfirm = document.getElementById("btnConfirmSale");
+  if (btnConfirm) btnConfirm.addEventListener("click", (e) => confirmSale(e));
 
   syncCashFields();
   renderCart();
+}
+
+// ---------- Función de escape HTML (Soluciona el error actual) ----------
+function escapeHTML(str) {
+  const div = document.createElement("div");
+  div.textContent = String(str ?? "");
+  return div.innerHTML;
 }
 
 // ---------- Búsqueda de productos ----------
@@ -50,7 +62,6 @@ async function renderSearchResults() {
     return;
   }
 
-  // Obtenemos los productos asegurándonos de manejar correctamente si es una promesa o arreglo
   let productsList = getProducts();
   if (productsList instanceof Promise) {
     productsList = await productsList;
@@ -172,9 +183,9 @@ function renderCart() {
       <td>${formatCOP(item.precioUnitario)}</td>
       <td>
         <span class="qty-control">
-          <button type="button" data-action="dec" aria-label="Restar">&minus;</button>
+          <button type="button" data-action="dec" aria-label="Restar">−</button>
           <input type="number" min="1" value="${item.cantidad}" aria-label="Cantidad">
-          <button type="button" data-action="inc" aria-label="Sumar">&plus;</button>
+          <button type="button" data-action="inc" aria-label="Sumar">+</button>
         </span>
       </td>
       <td>${formatCOP(subtotal)}</td>
@@ -190,83 +201,7 @@ function renderCart() {
   cartEmpty.hidden = cart.length > 0;
   updateTotals();
 }
-// ---Capturar la venta---
 
-let ventaActualId = null; 
-
-export async function guardarVentaAbierta(carrito, clienteId = null) {
-  if (carrito.length === 0) {
-    alert("El carrito está vacío.");
-    return;
-  }
-
-  const ventaData = {
-    id: ventaActualId || "venta-" + Date.now(),
-    estado: "abierta", 
-    items: JSON.stringify(carrito), 
-    clienteId: clienteId || "",
-    total: carrito.reduce((sum, item) => sum + (item.precio * item.cantidad), 0),
-    fecha: new Date().toISOString()
-  };
-
-  try {
-    if (ventaActualId) {
-      await updateVenta(ventaData);
-    } else {
-      await createVenta(ventaData);
-    }
-    
-    showToast("Venta guardada como abierta.");
-    // Limpiar carrito y resetear ventaActualId
-    limpiarCarritoYFormulario();
-  } catch (error) {
-    console.error("Error al guardar venta abierta:", error);
-    showToast("No se pudo guardar la venta en el servidor.", "error");
-  }
-}
-
-export async function mostrarModalVentasAbiertas(onRetomarCallback) {
-  const ventas = await getVentas();
-  // Filtramos solo las que están abiertas
-  const ventasAbiertas = ventas.filter(v => v.estado === "abierta");
-
-
-  const contenedorLista = document.getElementById("listaVentasAbiertas"); 
-  if (!contenedorLista) return;
-
-  contenedorLista.innerHTML = "";
-
-  if (ventasAbiertas.length === 0) {
-    contenedorLista.innerHTML = "<p>No hay ventas abiertas en este momento.</p>";
-    return;
-  }
-
-  ventasAbiertas.forEach(venta => {
-    const item = document.createElement("div");
-    item.className = "venta-abierta-item"; // Estilo opcional
-    item.innerHTML = `
-      <span>Fecha: ${new Date(venta.fecha).toLocaleString()} - Total: $${venta.total}</span>
-      <button class="btn-retomar">Retomar</button>
-    `;
-
-    item.querySelector(".btn-retomar").addEventListener("click", () => {
-
-      ventaActualId = venta.id;
-      
-   
-      const carritoRecuperado = JSON.parse(venta.items);
-   
-      if (typeof onRetomarCallback === "function") {
-        onRetomarCallback(carritoRecuperado, venta.clienteId);
-      }
-
-      showToast("Venta retomada con éxito.");
-
-    });
-
-    contenedorLista.appendChild(item);
-  });
-}
 // ---------- Totales y pago ----------
 
 function getTotal() {
@@ -324,14 +259,12 @@ async function confirmSale(e) {
     cambio = valorRecibido - total;
   }
 
-  // Obtenemos los productos de forma asíncrona y segura
   let productsList = getProducts();
   if (productsList instanceof Promise) {
     productsList = await productsList;
   }
   const products = Array.isArray(productsList) ? productsList : [];
 
-  // Descontar stock de productos con seguimiento de inventario
   for (const item of cart) {
     const product = products.find((p) => p.id === item.productId);
     if (product && product.seguimientoInventario) {
@@ -348,7 +281,6 @@ async function confirmSale(e) {
     }
   });
 
-  // Si usas almacenamiento local para guardar ventas de respaldo:
   if (typeof saveProducts === "function") {
     saveProducts(products);
   }
@@ -379,14 +311,17 @@ async function confirmSale(e) {
 
   showToast(`Venta #${sale.numero} confirmada.`);
 
-  // Reset del formulario de venta
   cart = [];
   cashReceived.value = "";
   renderCart();
 
-  // Ir a la vista de factura con mensaje de confirmación
   renderTicket(sale, { showConfirmBanner: true });
   showView("factura");
 
   window.dispatchEvent(new CustomEvent("sale:completed"));
+}
+
+function showSaleError(message) {
+  saleError.textContent = message;
+  saleError.hidden = false;
 }
