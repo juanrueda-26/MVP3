@@ -65,17 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function aplicarRestriccionesRol() {
-  const role = localStorage.getItem('pos_role');
-  if (role === 'cajero') {
-    // Ocultamos o deshabilitamos botones de creación/edición para simular el bloqueo del Momento 1
-    const btnNewProduct = document.getElementById('btnNewProduct');
-    const btnNewCategoria = document.getElementById('btnNewCategoria');
-    if (btnNewProduct) btnNewProduct.style.display = 'none';
-    if (btnNewCategoria) btnNewCategoria.style.display = 'none';
-  }
-}
-
-function aplicarRestriccionesRol() {
   const usuarioActual = localStorage.getItem("usuarioActual"); // O el objeto de sesión que utilices
   
   // Seleccionamos los botones de las pestañas administrativas en el DOM
