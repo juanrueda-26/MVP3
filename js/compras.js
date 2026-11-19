@@ -187,7 +187,7 @@ async function handleCompraSubmit(modal, form) {
   await renderComprasTable();
 }
 
-async function renderComprasTable() {
+export async function renderComprasTable() {
   const tbody = document.getElementById("comprasBody");
   const empty = document.getElementById("comprasEmpty");
   if (!tbody) return;
