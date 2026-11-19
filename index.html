@@ -280,8 +280,7 @@
         <p class="empty-state" id="proveedoresEmpty" hidden>No hay proveedores registrados.</p>
       </div>
     </section>
-
-    <!-- ===================== VISTA: COMPRAS ===================== -->
+<!-- ===================== VISTA: COMPRAS ===================== -->
     <section id="view-compras" class="view" hidden>
       <div class="panel">
         <div class="panel__head">
@@ -303,7 +302,88 @@
         </div>
         <p class="empty-state" id="comprasEmpty" hidden>No hay compras registradas.</p>
       </div>
+
+      <!-- ===================== SECCIÓN: FALTANTES (MOMENTO 4) ===================== -->
+      <div class="panel" style="margin-top: 1.5rem;" id="faltantesPanel">
+        <div class="panel__head">
+          <h2>Faltantes de inventario</h2>
+          <button class="btn btn--primary" id="btnNewFaltante" type="button">+ Registrar faltante</button>
+        </div>
+
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+          <select id="faltanteProductoSelect" style="flex:1; min-width:200px;">
+            <option value="">— Seleccionar producto con poco stock —</option>
+          </select>
+          <input type="number" id="faltanteCantidad" min="1" placeholder="Cant. faltante" style="width:150px;">
+          <select id="faltanteProveedorSelect" style="flex:1; min-width:180px;">
+            <option value="">— Proveedor (opcional) —</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Producto</th>
+                <th scope="col">Cantidad</th>
+                <th scope="col">Proveedor</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="faltantesBody"></tbody>
+          </table>
+        </div>
+        <p class="empty-state" id="faltantesEmpty" hidden>No hay faltantes registrados.</p>
+      </div>
     </section>
+
+    <!-- ===================== MODAL: NUEVA COMPRA ===================== -->
+    <div class="modal-backdrop" id="compraModalBackdrop" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="compraModalTitle">
+        <div class="modal__head">
+          <h2 id="compraModalTitle">Registrar compra a proveedor</h2>
+          <button class="modal__close" id="btnCloseCompraModal" type="button" aria-label="Cerrar">×</button>
+        </div>
+
+        <form id="compraForm" novalidate>
+          <label class="field">
+            <span class="field__label">Proveedor *</span>
+            <select id="cProveedor" required>
+              <option value="">— Seleccionar proveedor —</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Producto *</span>
+            <select id="cProducto" required>
+              <option value="">— Seleccionar producto —</option>
+            </select>
+          </label>
+
+          <div class="field-row">
+            <label class="field">
+              <span class="field__label">Cantidad comprada *</span>
+              <input type="number" id="cCantidad" min="1" step="1" required>
+            </label>
+            <label class="field">
+              <span class="field__label">Costo unitario ($) *</span>
+              <input type="number" id="cCostoUnitario" min="0" step="1" required>
+            </label>
+          </div>
+
+          <p class="form-error" id="compraFormError" hidden></p>
+
+          <div class="modal__actions">
+            <button type="button" class="btn btn--ghost" id="btnCancelCompra">Cancelar</button>
+            <button type="submit" class="btn btn--primary">Guardar compra y subir stock</button>
+          </div>
+        </form>
+      </div>
+    </div>
+```[cite: 20]
+
+Asegúrate también de que no quede duplicada la `<section id="view-proveedores">` que aparecía repetida en tu `index.html`[cite: 7]. ¿Ya pegaste este bloque o te falta conectar `initCompras` en `main.js`?
     <!-- ===================== VISTA: HISTORIAL ===================== -->
     <section id="view-historial" class="view" hidden>
       <div class="panel">
