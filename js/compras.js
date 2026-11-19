@@ -192,28 +192,29 @@ export async function renderComprasTable() {
   const empty = document.getElementById("comprasEmpty");
   if (!tbody) return;
 
-  let compras = [];
-  try {
-    const apiData = await apiGet("compras");
-    if (Array.isArray(apiData) && apiData.length > 0) {
-      compras = apiData;
+  const localCompras = readLocal(LOCAL_COMPRAS_KEY);
+  let compras = [...localCompras];
+
+  // Solo intenta pedir a la API si no hay compras locales o si el endpoint existe
+  if (compras.length === 0) {
+    try {
+      const apiData = await apiGet("compras");
+      if (Array.isArray(apiData)) compras = apiData;
+    } catch {
+      compras = [];
     }
-  } catch {
-    compras = [];
   }
 
-  const localCompras = readLocal(LOCAL_COMPRAS_KEY);
-  const list = compras.length > 0 ? compras : localCompras;
-  comprasCache = list;
-
+  comprasCache = compras;
   tbody.innerHTML = "";
-  if (list.length === 0) {
+
+  if (compras.length === 0) {
     if (empty) empty.hidden = false;
     return;
   }
   if (empty) empty.hidden = true;
 
-  list.forEach((c) => {
+  compras.forEach((c) => {
     const tr = document.createElement("tr");
     const ref = c.referencia || `#${c.id}`;
     const prov = c.proveedor_nombre || `Proveedor #${c.proveedor ?? c.proveedorId ?? 1}`;
