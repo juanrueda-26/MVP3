@@ -274,7 +274,7 @@ async function handleCreateFaltante() {
   await renderFaltantesTable();
 }
 
-async function renderFaltantesTable() {
+export async function renderFaltantesTable() {
   const tbody = document.getElementById("faltantesBody");
   const empty = document.getElementById("faltantesEmpty");
   if (!tbody) return;
