@@ -24,7 +24,10 @@ onViewChange((view) => {
   if (view === "categorias") renderCategoriasTable();
   if (view === "clientes") renderClientesTable();
   if (view === "proveedores") renderProveedoresTable();
-  if (view === "compras") renderComprasTable();
+  if (view === "compras"){ 
+    renderComprasTable(); 
+    renderFaltantesTable(); }
+
 });
 
 window.addEventListener("sale:completed", () => {
