@@ -114,7 +114,7 @@ async function populateSelectors() {
   }
 }
 
-async function handleCompraSubmit(modal, form) {
+async function handleCompraSubmit(modal, form) {  
   hideError("compraFormError");
   const proveedorId = Number(document.getElementById("cProveedor")?.value);
   const productoId = Number(document.getElementById("cProducto")?.value);
@@ -153,23 +153,16 @@ async function handleCompraSubmit(modal, form) {
     return showError("compraFormError", "Error al subir el stock del producto en el servidor.");
   }
 
-  try {
-    await apiPost("compras", {
-      proveedor: proveedorId,
-      producto: productoId,
-      cantidad,
-      costo_unitario: costoUnitario,
-      total: totalCompra,
-    });
-  } catch {
-    // Respaldo local si el endpoint de compras no está expuesto en DRF
-  }
+ const provSelect = document.getElementById("cProveedor");
+  const proveedorNombre =
+    provSelect?.options[provSelect.selectedIndex]?.text || `Proveedor #${proveedorId}`;
 
   const compras = readLocal(LOCAL_COMPRAS_KEY);
   compras.unshift({
     id: "cmp-" + Date.now(),
     referencia: "OC-" + Math.floor(1000 + Math.random() * 9000),
     proveedorId,
+    proveedorNombre,
     productoId,
     productoNombre: product.nombre,
     cantidad,
@@ -192,32 +185,20 @@ export async function renderComprasTable() {
   const empty = document.getElementById("comprasEmpty");
   if (!tbody) return;
 
-  const localCompras = readLocal(LOCAL_COMPRAS_KEY);
-  let compras = [...localCompras];
+  const list = readLocal(LOCAL_COMPRAS_KEY);
+  comprasCache = list;
 
-  // Solo intenta pedir a la API si no hay compras locales o si el endpoint existe
-  if (compras.length === 0) {
-    try {
-      const apiData = await apiGet("compras");
-      if (Array.isArray(apiData)) compras = apiData;
-    } catch {
-      compras = [];
-    }
-  }
-
-  comprasCache = compras;
   tbody.innerHTML = "";
-
-  if (compras.length === 0) {
+  if (list.length === 0) {
     if (empty) empty.hidden = false;
     return;
   }
   if (empty) empty.hidden = true;
 
-  compras.forEach((c) => {
+  list.forEach((c) => {
     const tr = document.createElement("tr");
     const ref = c.referencia || `#${c.id}`;
-    const prov = c.proveedor_nombre || `Proveedor #${c.proveedor ?? c.proveedorId ?? 1}`;
+    const prov = c.proveedorNombre || c.proveedor_nombre || `Proveedor #${c.proveedor ?? c.proveedorId ?? 1}`;
     const fechaTxt = c.fecha ? new Date(c.fecha).toLocaleDateString() : "Hoy";
     tr.innerHTML = `
       <td>${escapeHTML(ref)}</td>
