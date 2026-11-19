@@ -56,6 +56,15 @@
 
           <ul class="search-results" id="searchResults" hidden></ul>
 
+          <div style="display:flex; gap:.5rem; flex-wrap:wrap; margin:.75rem 0;">
+  <button class="btn btn--ghost" id="btnSaveOpenSale" type="button">Guardar venta abierta</button>
+  <button class="btn btn--ghost" id="btnOpenSalesList" type="button">Ventas abiertas (<span id="openSalesCount">0</span>)</button>
+</div>
+<div id="openSalesPanel" hidden style="margin-bottom:1rem; padding:.75rem; border:1px solid var(--border, #ddd); border-radius:8px;">
+  <strong>Ventas en espera</strong>
+  <div id="listaVentasAbiertas" style="margin-top:.5rem; display:flex; flex-direction:column; gap:.4rem;"></div>
+</div>
+
           <div class="cart">
             <table class="cart__table" id="cartTable">
               <thead>
@@ -113,6 +122,30 @@
               <strong id="sumChange">$0</strong>
             </div>
           </div>
+
+          <label class="field" id="clientField" style="margin-top:.75rem;">
+  <span class="field__label">Cliente</span>
+  <select id="saleClientSelect">
+    <option value="">— Seleccionar cliente —</option>
+  </select>
+</label>
+
+<div class="totals__row" id="discountRow" hidden>
+  <span>Descuento</span>
+  <strong id="sumDiscount">-$0</strong>
+</div>
+
+<div class="field" style="margin-top:.75rem;">
+  <span class="field__label">Descuento ($ o %)</span>
+  <div style="display:flex; gap:.4rem;">
+    <input type="number" id="discountInput" min="0" step="100" placeholder="Monto" style="flex:1;">
+    <select id="discountType" style="width:72px;">
+      <option value="amount">$</option>
+      <option value="percent">%</option>
+    </select>
+    <button class="btn btn--ghost" id="btnApplyDiscount" type="button">Aplicar</button>
+  </div>
+</div>
 
           <p class="form-error" id="saleError" hidden></p>
 
