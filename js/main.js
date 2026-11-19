@@ -6,7 +6,7 @@ import { initInvoice } from "./invoice.js";
 import { initCategorias, renderCategoriasTable } from './categorias.js';
 import { initClientes, renderClientesTable } from "./clientes.js";
 import { initProveedores, renderProveedoresTable } from "./proveedores.js";
-import { initCompras, renderComprasTable } from "./compras.js";
+import { initCompras, renderComprasTable,renderFaltantesTable } from "./compras.js";
 
 initInvoice();
 initProducts(() => {});
